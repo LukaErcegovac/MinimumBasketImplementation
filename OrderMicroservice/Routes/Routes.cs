@@ -1,4 +1,6 @@
-﻿namespace OrderMicroservice
+﻿using System.Security.Claims;
+
+namespace OrderMicroservice
 {
     public static class Routes
     {
@@ -16,6 +18,24 @@
                     return Results.BadRequest(new { error });
                 }
             });
+
+            app.MapDelete("/orders/{orderId:int}", async (OrderDBContex db, int orderId, HttpContext httpContext) =>
+            {
+                var user = httpContext.User;
+
+                if(user?.Identity?.IsAuthenticated != true)
+                    return Results.Unauthorized();
+
+                var (success, error) = await DeleteOrder.RemoveOrder(db, orderId, user);
+                if (success)
+                {
+                    return Results.NoContent();
+                }
+                else
+                {
+                    return Results.BadRequest(new { error });
+                }
+            }).RequireAuthorization();
         }
     }
 }
