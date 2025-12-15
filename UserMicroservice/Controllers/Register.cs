@@ -1,4 +1,6 @@
-﻿namespace UserMicroservice
+﻿using System.Text.RegularExpressions;
+
+namespace UserMicroservice
 {
     public static class Register
     {
@@ -16,6 +18,10 @@
 
                 if (db.Users.Any(user => user.Email == email))
                     return (false, null, "A user with this email already exists.");
+
+                string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                if (!Regex.IsMatch(email, emailPattern, RegexOptions.IgnoreCase))
+                    return (false, null, "Invalid email format.");
 
                 User newUser = new User
                 {

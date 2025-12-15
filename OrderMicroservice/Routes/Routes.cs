@@ -21,7 +21,7 @@ namespace OrderMicroservice
 
             app.MapDelete("/orders/{orderId:int}", async (OrderDBContex db, int orderId, HttpContext httpContext) =>
             {
-                var user = httpContext.User;
+                ClaimsPrincipal? user = httpContext.User;
 
                 if(user?.Identity?.IsAuthenticated != true)
                     return Results.Unauthorized();
@@ -36,6 +36,33 @@ namespace OrderMicroservice
                     return Results.BadRequest(new { error });
                 }
             }).RequireAuthorization();
+
+            app.MapGet("/orders/user", async (OrderDBContex db, HttpContext httpContext) =>
+            {
+                ClaimsPrincipal? user = httpContext.User;
+                var (success, error, orders) = await GetOrders.GetUsersOrders(db, user);
+                if (success)
+                {
+                    return Results.Ok(orders);
+                }
+                else
+                {
+                    return Results.BadRequest(new { error });
+                }
+            }).RequireAuthorization();
+
+            app.MapGet("/orders/all", async (OrderDBContex db) =>
+            {
+                var (success, error, orders) = await GetOrders.GetAllOrders(db);
+                if (success)
+                {
+                    return Results.Ok(orders);
+                }
+                else
+                {
+                    return Results.BadRequest(new { error });
+                }
+            });
         }
     }
 }

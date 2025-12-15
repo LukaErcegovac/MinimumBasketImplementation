@@ -30,7 +30,7 @@ namespace UserMicroservice
                 if (!passwordMatches)
                     return (false, null, "Invalid credentials.");
 
-                var token = GenerateJwtToken(user, jwtKey, jwtIssuer, jwtAudience, jwtExpireMinutes);
+                string? token = GenerateJwtToken(user, jwtKey, jwtIssuer, jwtAudience, jwtExpireMinutes);
                 return (true, token, null);
             }
             catch (Exception ex)
@@ -53,7 +53,7 @@ namespace UserMicroservice
                 new Claim("lastName", user.LastName ?? string.Empty)
             };
 
-            var token = new JwtSecurityToken(
+            JwtSecurityToken? token = new JwtSecurityToken(
                 issuer: jwtIssuer,
                 audience: jwtAudience,
                 claims: claims,

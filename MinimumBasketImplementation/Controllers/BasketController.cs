@@ -10,40 +10,56 @@ namespace MinimumBasketImplementation
         {
             try
             {
-                if (user?.Identity?.IsAuthenticated != true)
-                    return (false, "User is not authenticated.", null);
+                var (isValid, errorMessage, userId) = AuthHelper.ValidateUser(user);
+                if (!isValid)
+                    return (false, errorMessage, null);
 
-                var userIDClaim = user.FindFirst("userId")?.Value;
-                if (!int.TryParse(userIDClaim, out int userId))
-                    return (false, "Invalid user ID claim.", null);
+                IMemoryCache? cache = BasketCache.Cache;
 
-                var id = basketId ?? Guid.NewGuid();
+                string userKey = $"userBasket:{userId}";
+                Guid id;
+
+                if(cache.TryGetValue(userKey, out object? userObj) && userObj is Guid baskeId)
+                {
+                    id = baskeId;
+                }
+                else
+                {
+                    id = basketId ?? Guid.NewGuid();
+                }
+
                 string cacheKey = $"basket:{id}";
-
-                var cache = BasketCache.Cache;
 
                 if (cache.TryGetValue(cacheKey, out object? basketObj) && basketObj is Basket basket && basket is not null)
                 {
-                    if(basket.Items == null)
+                    if(basket.UserID != userId)
+                        return (false, "User is not authorized to modify this basket.", null);
+
+                    if (basket.Items == null)
                         basket.Items = new List<Item>();
 
-                    var existingItem = basket.Items.FirstOrDefault(i => i.ID == dto.id);
+                    Item? existingItem = basket.Items.FirstOrDefault(i => i.ID == dto.id);
                     if (existingItem != null)
                     {
                         existingItem.Quantity += dto.quantity;
                     }
                     else
                     {
-                        var itemToAdd = new Item(dto.id, dto.name ?? string.Empty, dto.price, dto.quantity);
+                        Item itemToAdd = new Item(dto.id, dto.name ?? string.Empty, dto.price, dto.quantity);
                         basket.Items.Add(itemToAdd);
                     }
                 }
                 else
                 {
-                    var newItem = new Item(dto.id, dto.name ?? string.Empty, dto.price, dto.quantity);
-                    var items = new List<Item> { newItem };
-                    var newBasket = new Basket(id, items, userId);
+                    Item newItem = new Item(dto.id, dto.name ?? string.Empty, dto.price, dto.quantity);
+                    List<Item> items = new List<Item> { newItem };
+                    Basket newBasket = new Basket(id, items, userId);
                     basket = newBasket;
+
+                    cache.Set(userKey, id, new MemoryCacheEntryOptions
+                    {
+                        SlidingExpiration = TimeSpan.FromMinutes(30)
+                    });
                 }
 
                 cache.Set(cacheKey, basket, new MemoryCacheEntryOptions
