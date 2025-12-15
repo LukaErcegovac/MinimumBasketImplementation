@@ -12,11 +12,11 @@ namespace OrderMicroservice
                 if (user?.Identity?.IsAuthenticated != true)
                     return (false, "User is not authenticated.");
 
-                var userIDClaim = user.FindFirst("userId")?.Value;
+                string? userIDClaim = user.FindFirst("userId")?.Value;
                 if(!int.TryParse(userIDClaim, out int userId))
                     return (false, "Invalid user ID claim.");
 
-                var order = await db.Orders.FindAsync(orderId);
+                Order? order = await db.Orders.FindAsync(orderId);
                 if (order is null) return (false, "Order not found.");
 
                 if (order.UserID != userId)
