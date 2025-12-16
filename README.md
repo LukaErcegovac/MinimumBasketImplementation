@@ -21,7 +21,7 @@ Kada su odrađeni svi koraci projekt se može pokrenuti preko gumba Start.
 Ovaj način je za mene bio bolja opcija jer mi je odmah otvarao Swagger za svaki mikroservis.
 
 ### 2. Način
-Drugi način da se pokrene projekt je da se otvori više CMD-ova ili PowerShell-ova i u svako se uđe u file jednog projekta, te se pokrene svaku pojedinačno.
+Drugi način da se pokrene projekt je da se otvori više CMD-ova ili PowerShell-ova i u svako se uđe u file jednog projekta, te se pokrene svaki pojedinačno.
 
 cd .\UserMicroservice\
 dotnet run
