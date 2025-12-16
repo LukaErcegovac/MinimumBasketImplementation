@@ -8,6 +8,10 @@ Mikroservisi:
 Najbitnije je da port na order mikroservisu bude 7290 jer je tako postavljeno u kodu.
 Basket mikroservis se spaja preko tog porta kako bi kreirao narudžbu nakon što se ona potvrdi.
 
+Za sve je potreban token, takon da se prvo treba napraviti register i login na user mikroservisu. Nakon što se dobije token sve se radi na basket mikroservisu.
+Kreira se kosarica i dodaju itemi ili brisu, a pri potvrdi narudžbe (ili košarice) se zove order mikroservis i kreira se narudžba.
+Ako se žele pregledati narudžbe onda se zove order mikroservis.
+
 ## Pokretanje
 
 Progmar se može pokrenuti na dva načina. 
